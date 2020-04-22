@@ -1,47 +1,43 @@
 package com.nick.wood.boids_simulation;
 
-import com.nick.wood.maths.objects.Vecd;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 import java.util.UUID;
 
 public class Boid {
 
 	private final UUID uuid;
-	private Vecd pos;
-	private Vecd vel;
+	private Vecd position;
+	private Vecd velocity;
 	private Goal goal;
 	private double fov;
 
-	public Boid(Vecd pos, Vecd vel, Goal goal, double fov) {
+	public Boid(Vecd position, Vecd velocity, Goal goal, double fov) {
 		this.uuid = UUID.randomUUID();
-		this.pos = pos;
-		this.vel = vel;
+		this.position = position;
+		this.velocity = velocity;
 		this.goal = goal;
 		this.fov = fov;
 	}
 
-	public Vecd getPos() {
-		return pos;
+	public UUID getUuid() {
+		return uuid;
 	}
 
-	public void setPos(Vecd pos) {
-		this.pos = pos;
+	public Vecd getPosition() {
+		return position;
 	}
 
-	public Vecd getVel() {
-		return vel;
+	public void setPosition(Vecd position) {
+		this.position = position;
 	}
 
-	public void setVel(Vecd vel) {
-		this.vel = vel;
+	public Vecd getVelocity() {
+		return velocity;
 	}
 
-	public double getFov() {
-		return fov;
-	}
-
-	public void setFov(double fov) {
-		this.fov = fov;
+	public void setVelocity(Vecd velocity) {
+		this.velocity = velocity;
 	}
 
 	public Goal getGoal() {
@@ -52,7 +48,11 @@ public class Boid {
 		this.goal = goal;
 	}
 
-	public UUID getUuid() {
-		return uuid;
+	public double getFov() {
+		return fov;
+	}
+
+	public void setFov(double fov) {
+		this.fov = fov;
 	}
 }

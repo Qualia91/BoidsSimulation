@@ -1,6 +1,6 @@
 package com.nick.wood.boids_simulation;
 
-import com.nick.wood.maths.objects.Vecd;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 import java.util.ArrayList;
 
@@ -21,11 +21,11 @@ public class CommsSystem {
 
 				if (boid.getGoal().getGoalNumber() > otherBoid.getGoal().getGoalNumber()) {
 
-					if (Math.abs(boid.getPos().subtract(otherBoid.getPos()).length2()) < lengthAwayComms2) {
+					if (Math.abs(boid.getPosition().subtract(otherBoid.getPosition()).length2()) < lengthAwayComms2) {
 
-						Vecd vecBetweenTwoPoints = otherBoid.getPos().subtract(boid.getPos());
+						Vecd vecBetweenTwoPoints = otherBoid.getPosition().subtract(boid.getPosition());
 
-						if (vecBetweenTwoPoints.dot(boid.getVel()) * ((vecBetweenTwoPoints.length()) * (boid.getVel().length())) < boid.getFov()) {
+						if (vecBetweenTwoPoints.dot(boid.getVelocity()) * ((vecBetweenTwoPoints.length()) * (boid.getVelocity().length())) < boid.getFov()) {
 
 							otherBoid.setGoal(boid.getGoal());
 

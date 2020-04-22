@@ -1,7 +1,7 @@
 package com.nick.wood.boids_simulation;
 
-import com.nick.wood.maths.objects.Vecd;
-import com.nick.wood.maths.objects.Vector;
+import com.nick.wood.maths.objects.vector.Vecd;
+import com.nick.wood.maths.objects.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -43,7 +43,7 @@ public class GoLSystem {
 
 				if (!boid.equals(otherBoid)) {
 
-					if (Math.abs(boid.getPos().subtract(otherBoid.getPos()).length2()) < lengthAway2) {
+					if (Math.abs(boid.getPosition().subtract(otherBoid.getPosition()).length2()) < lengthAway2) {
 
 						boidsClose.add(otherBoid);
 
@@ -54,7 +54,7 @@ public class GoLSystem {
 			}
 
 			if (boidsClose.size() > overPopLim) {
-				deadPositions.add(boid.getPos());
+				deadPositions.add(boid.getPosition());
 				iter.remove();
 			}
 
@@ -97,7 +97,7 @@ public class GoLSystem {
 
 	private Boid reproduce(ArrayList<Vecd> positions) {
 
-		Vecd center = Vector.create(0.0, 0.0);
+		Vecd center = Vector.Create(0.0, 0.0);
 
 		for (Vecd pos : positions) {
 
@@ -108,8 +108,8 @@ public class GoLSystem {
 		center = center.scale(1.0/positions.size());
 
 		return new Boid(center,
-				Vector.create(rand.nextInt(10) - 5, rand.nextInt(10) - 5),
-				new Goal(Vector.create(0.0, 0.0), -1, false),
+				Vector.Create(rand.nextInt(10) - 5, rand.nextInt(10) - 5),
+				new Goal(Vector.Create(0.0, 0.0), -1, false),
 				Math.PI/8);
 
 	}

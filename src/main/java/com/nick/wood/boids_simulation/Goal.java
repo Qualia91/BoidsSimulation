@@ -1,21 +1,21 @@
 package com.nick.wood.boids_simulation;
 
-import com.nick.wood.maths.objects.Vecd;
+import com.nick.wood.maths.objects.vector.Vecd;
 
 public class Goal {
 
-	private final Vecd pos;
+	private final Vecd position;
 	private final int goalNumber;
 	private final boolean active;
 
-	public Goal(Vecd pos, int goalNumber, boolean active) {
-		this.pos = pos;
+	public Goal(Vecd position, int goalNumber, boolean active) {
+		this.position = position;
 		this.goalNumber = goalNumber;
 		this.active = active;
 	}
 
-	public Vecd getPos() {
-		return pos;
+	public Vecd getPosition() {
+		return position;
 	}
 
 	public int getGoalNumber() {

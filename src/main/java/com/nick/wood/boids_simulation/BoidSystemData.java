@@ -6,7 +6,7 @@ public class BoidSystemData {
 	private double lengthAwayGroup2 = 400;
 	private double lengthAwayMin2 = 25;
 	private double boundScale = 1000;
-	private double velocityMatchScale = 8;
+	private double velocityMatchScale = 10;
 	private double antiCollideScale = 10;
 	private double perceivedCenterScale = 10;
 	private double goalScale = 5;
