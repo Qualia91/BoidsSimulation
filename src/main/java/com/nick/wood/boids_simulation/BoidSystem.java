@@ -11,286 +11,312 @@ import java.util.function.Function;
 public class BoidSystem {
 
 
-	private final Random rand = new Random();
+    private final Random rand = new Random();
 
-	private final int mins[];
-	private final int maxs[];
+    private final int mins[];
+    private final int maxs[];
 
-	private final double limitedSpeed;
-	private final double lengthAwayGroup2;
-	private final double lengthAwayMin2;
-	private final double boundScale;
-	private final double velocityMatchScale;
-	private final double antiCollideScale;
-	private final double perceivedCenterScale;
-	private final double goalScale;
-	private final int numberOfBoids;
-	private final int vectorLength;
+    private final double limitedSpeed;
+    private final double lengthAwayGroup2;
+    private final double lengthAwayMin2;
+    private final double boundScale;
+    private final double velocityMatchScale;
+    private final double antiCollideScale;
+    private final double perceivedCenterScale;
+    private final double goalScale;
+    private final int numberOfBoids;
+    private final int vectorLength;
 
-	private Goal goal;
+    private Goal goal;
 
-	private final ArrayList<Boid> boids;
+    private final ArrayList<Boid> boids;
 
-	private final Vecd ZERO;
+    private final Vecd ZERO;
 
-	public BoidSystem(int[] mins, int[] maxs, ArrayList<Boid> boids, BoidSystemData boidSystemData) {
+    public BoidSystem(int[] mins, int[] maxs, ArrayList<Boid> boids, BoidSystemData boidSystemData) {
 
-		assert mins.length == maxs.length;
+        assert mins.length == maxs.length;
 
-		this.vectorLength = maxs.length;
+        this.vectorLength = maxs.length;
 
-		this.limitedSpeed = boidSystemData.getLimitedSpeed();
-		this.lengthAwayGroup2 = boidSystemData.getLengthAwayGroup2();
-		this.lengthAwayMin2 = boidSystemData.getLengthAwayMin2();
-		this.boundScale = boidSystemData.getBoundScale();
-		this.velocityMatchScale = boidSystemData.getVelocityMatchScale();
-		this.antiCollideScale = boidSystemData.getAntiCollideScale();
-		this.perceivedCenterScale = boidSystemData.getPerceivedCenterScale();
-		this.goalScale = boidSystemData.getGoalScale();
-		this.numberOfBoids = boidSystemData.getNumberOfBoids();
+        this.limitedSpeed = boidSystemData.getLimitedSpeed();
+        this.lengthAwayGroup2 = boidSystemData.getLengthAwayGroup2();
+        this.lengthAwayMin2 = boidSystemData.getLengthAwayMin2();
+        this.boundScale = boidSystemData.getBoundScale();
+        this.velocityMatchScale = boidSystemData.getVelocityMatchScale();
+        this.antiCollideScale = boidSystemData.getAntiCollideScale();
+        this.perceivedCenterScale = boidSystemData.getPerceivedCenterScale();
+        this.goalScale = boidSystemData.getGoalScale();
+        this.numberOfBoids = boidSystemData.getNumberOfBoids();
 
-		this.mins = mins;
-		this.maxs = maxs;
+        this.mins = mins;
+        this.maxs = maxs;
 
-		ZERO = Vector.ZERO(mins.length);
+        ZERO = Vector.ZERO(mins.length);
 
-		this.boids = boids;
+        this.boids = boids;
 
-		goal = new Goal(ZERO, -1, false);
+        goal = new Goal(ZERO, -1, false);
 
-		for (int i = 0; i < numberOfBoids; i++) {
+        for (int i = 0; i < numberOfBoids; i++) {
 
-			boids.add(new Boid(
-					Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(maxs[index] - mins[index]) + mins[index])),
-					Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(10) - 5)),
-					goal,
-					Math.PI/8));
-		}
+            boids.add(new Boid(
+                    Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(maxs[index] - mins[index]) + mins[index])),
+                    Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(10) - 5)),
+                    goal,
+                    Math.PI / 8));
+        }
 
-	}
+    }
 
-	private double[] getVector(int length, Function<Integer, Double> function) {
-		double[] doubles = new double[length];
+    private double[] getVector(int length, Function<Integer, Double> function) {
+        double[] doubles = new double[length];
 
-		for (int i = 0; i < length; i++) {
-			doubles[i] = function.apply(i);
-		}
+        for (int i = 0; i < length; i++) {
+            doubles[i] = function.apply(i);
+        }
 
-		return doubles;
-	}
+        return doubles;
+    }
 
-	public void updatePositions(double timeStep) {
+    public void updatePositions(double timeStep) {
 
-		for (Boid boid : boids) {
+        for (Boid boid : boids) {
 
-			boid.setVelocity(
-					limitVelocity(
-							boid.getVelocity()
-									.add(cohesion(boid))
-									.add(separation(boid))
-									.add(alignment(boid))
-									.add(bound(boid))
-									.add(goal(boid))));
+            boid.setVelocity(
+                    limitVelocity(
+                            boid.getVelocity()
+                                    .add(cohesion(boid))
+                                    .add(separation(boid))
+                                    .add(alignment(boid))
+                                    .add(bound(boid))
+                                    .add(goal(boid))));
 
-			boid.setPosition(boid.getPosition().add(boid.getVelocity().scale(timeStep)));
-		}
+            boid.setPosition(boid.getPosition().add(boid.getVelocity().scale(timeStep)));
+        }
 
-	}
+    }
 
-	public void updateSensors() {
+    public void updateSensors() {
 
-		for (Boid boid : boids) {
+        for (Boid boid : boids) {
 
-			double distBetweenSqrd = Math.abs(goal.getPosition().subtract(boid.getPosition()).length2());
+            double distBetweenSqrd = Math.abs(goal.getPosition().subtract(boid.getPosition()).length2());
 
-			if (distBetweenSqrd < lengthAwayGroup2) {
+            if (distBetweenSqrd < lengthAwayGroup2) {
 
-				Vecd vecdBetweenTwoPoints = goal.getPosition().subtract(boid.getPosition());
+                Vecd vecdBetweenTwoPoints = goal.getPosition().subtract(boid.getPosition());
 
-				if (vecdBetweenTwoPoints.dot(boid.getVelocity()) * ((vecdBetweenTwoPoints.length()) * (boid.getVelocity().length())) < boid.getFov()) {
+                if (vecdBetweenTwoPoints.dot(boid.getVelocity()) * ((vecdBetweenTwoPoints.length()) * (boid.getVelocity().length())) < boid.getFov()) {
 
-					boid.setGoal(goal);
+                    boid.setGoal(goal);
 
-				}
+                }
 
-			}
+            }
 
-		};
+        }
+        ;
 
-	}
+    }
 
-	private Vecd goal(Boid boid) {
-		if (boid.getGoal().isActive()) {
-			return boid.getGoal().getPosition().subtract(boid.getPosition()).normalise().scale(goalScale);
-		} else if (goal.isActive()) {
-			return goal.getPosition().subtract(boid.getPosition()).normalise().scale(goalScale);
-		}
-		return ZERO;
-	}
+    private Vecd goal(Boid boid) {
+        if (boid.getGoal().isActive()) {
+            return boid.getGoal().getPosition().subtract(boid.getPosition()).normalise().scale(goalScale);
+        } else if (goal.isActive()) {
+            return goal.getPosition().subtract(boid.getPosition()).normalise().scale(goalScale);
+        }
+        return ZERO;
+    }
 
-	private Vecd bound(Boid boid) {
+    private Vecd bound(Boid boid) {
 
-		double[] elems = new double[mins.length];
+        double[] elems = new double[mins.length];
 
-		for (int i = 0; i < mins.length; i++) {
-			if (boid.getPosition().get(i) < mins[i]) {
-				elems[i] = (mins[i] - boid.getPosition().get(i)) * boundScale;
-			}
-			else if (boid.getPosition().get(i) > maxs[i]) {
-				elems[i] = (maxs[i] - boid.getPosition().get(i)) * boundScale;
-			}
-		}
+        for (int i = 0; i < mins.length; i++) {
+            if (boid.getPosition().get(i) < mins[i]) {
+                elems[i] = (mins[i] - boid.getPosition().get(i)) * boundScale;
+            } else if (boid.getPosition().get(i) > maxs[i]) {
+                elems[i] = (maxs[i] - boid.getPosition().get(i)) * boundScale;
+            }
+        }
 
-		return Vector.Create(elems);
-	}
+        return Vector.Create(elems);
+    }
 
-	private Vecd limitVelocity(Vecd vel) {
+    private Vecd limitVelocity(Vecd vel) {
 
-		if (vel.length() > limitedSpeed) {
+        if (vel.length() > limitedSpeed) {
 
-			vel = vel.normalise().scale(limitedSpeed);
+            vel = vel.normalise().scale(limitedSpeed);
 
-		}
+        }
 
-		return vel;
-	}
+        return vel;
+    }
 
-	/**Alignment.
-	 *
-	 * Will cause the boids to want to steer in an average velocity direction of the local group.
-	 *
-	 * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
-	 * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by alignment function.
-	 */
-	private Vecd alignment(Boid boid) {
+    /**
+     * Alignment.
+     * <p>
+     * Will cause the boids to want to steer in an average velocity direction of the local group.
+     *
+     * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
+     * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by alignment function.
+     */
+    private Vecd alignment(Boid boid) {
 
-		// setup some variables we will need. num is to find the number of boids in the local group
-		double[] vElems = new double[vectorLength];
-		int num = 0;
+        // setup some variables we will need. num is to find the number of boids in the local group
+        double[] vElems = new double[vectorLength];
+        int num = 0;
 
-		// loop through boids
-		for (Boid otherBoid : boids) {
+        // loop through boids
+        for (Boid otherBoid : boids) {
 
-			if (!boid.equals(otherBoid)) {
+            if (!boid.equals(otherBoid)) {
 
-				// find the distance (squared) between the 2 boids and use if this distance is small enough
-				if (Math.abs(boid.getPosition().subtract(otherBoid.getPosition()).length2()) < lengthAwayGroup2) {
+                // see if the boid can see the other boid.
+                // is if the dot product between the velocity vector and the vector from
+                // the boid to the other boid is less than the FoV
+                Vecd vectorToOtherBoid = otherBoid.getPosition().subtract(boid.getPosition());
+                if (vectorToOtherBoid.dot(boid.getVelocity()) < boid.getFov()) {
 
-					// sum all the velocities thats are close enough together
-					for (int i = 0; i < vectorLength; i++) {
-						vElems[i] += otherBoid.getVelocity().get(i);
-					}
+                    // find the distance (squared) between the 2 boids and use if this distance is small enough
+                    if (Math.abs(vectorToOtherBoid.length2()) < lengthAwayGroup2) {
 
-					num++;
+                        // sum all the velocities that are close enough together
+                        for (int i = 0; i < vectorLength; i++) {
+                            vElems[i] += otherBoid.getVelocity().get(i);
+                        }
 
-				}
+                        num++;
 
-			}
+                    }
+                }
 
-		}
+            }
 
-		// if no boids are in the group, just return Zero
-		if (num == 0) return ZERO;
+        }
 
-		for (int i = 0; i < vectorLength; i++) {
-			// new velocity = average velocity of group - boids current velocity all multiplied by a scale
-			vElems[i] = ((vElems[i] / num) - (boid.getVelocity().get(i))) * velocityMatchScale;
-		}
+        // if no boids are in the group, just return Zero
+        if (num == 0) return ZERO;
 
-		return Vector.Create(vElems);
+        for (int i = 0; i < vectorLength; i++) {
+            // new velocity = average velocity of group - boids current velocity all multiplied by a scale
+            vElems[i] = ((vElems[i] / num) - (boid.getVelocity().get(i))) * velocityMatchScale;
+        }
 
-	}
+        return Vector.Create(vElems);
 
-	/**Separation.
-	 *
-	 * Makes the boids keep some distance away from their neighbour boids so to not cause
-	 * over crowding and eventual collisions.
-	 *
-	 * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
-	 * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by separation function.
-	 */
-	private Vecd separation(Boid boid) {
+    }
 
-		// Create an empty return array of the size of the vectors being used to update in the loop
-		double[] e = new double[vectorLength];
+    /**
+     * Separation.
+     * <p>
+     * Makes the boids keep some distance away from their neighbour boids so to not cause
+     * over crowding and eventual collisions.
+     *
+     * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
+     * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by separation function.
+     */
+    private Vecd separation(Boid boid) {
 
-		// loop over boids
-		for (Boid otherBoid : boids) {
+        // Create an empty return array of the size of the vectors being used to update in the loop
+        double[] e = new double[vectorLength];
 
-			// check you are not comparing the same boids
-			if (!boid.equals(otherBoid)) {
+        // loop over boids
+        for (Boid otherBoid : boids) {
 
-				// get the distance (squared for efficiency reasons) between the 2 boids and compare it to the user input
-				// minimum length boids can be to each other.
-				if (Math.abs(boid.getPosition().subtract(otherBoid.getPosition()).length2()) < lengthAwayMin2) {
+            // check you are not comparing the same boids
+            if (!boid.equals(otherBoid)) {
 
-					// update impulse accordingly
-					for (int i = 0; i < vectorLength; i++) {
-						e[i] -= (otherBoid.getPosition().get(i) - boid.getPosition().get(i)) * antiCollideScale;
-					}
+                // see if the boid can see the other boid.
+                // is if the dot product between the velocity vector and the vector from
+                // the boid to the other boid is less than the FoV
+                Vecd vectorToOtherBoid = otherBoid.getPosition().subtract(boid.getPosition());
+                if (vectorToOtherBoid.dot(boid.getVelocity()) < boid.getFov()) {
 
-				}
-			}
+                    // get the distance (squared for efficiency reasons) between the 2 boids and compare it to the user input
+                    // minimum length boids can be to each other.
+                    if (Math.abs(vectorToOtherBoid.length2()) < lengthAwayMin2) {
 
-		}
+                        // update impulse accordingly
+                        for (int i = 0; i < vectorLength; i++) {
+                            e[i] -= (otherBoid.getPosition().get(i) - boid.getPosition().get(i)) * antiCollideScale;
+                        }
 
-		return Vector.Create(e);
+                    }
 
-	}
+                }
 
-	/**
-	 * Cohesion.
-	 * <p>
-	 * Will cause the boids to want to steer towards the center of mass of the local group.
-	 *
-	 * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
-	 * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by cohesion function.
-	 */
-	private Vecd cohesion(Boid boid) {
+            }
 
-		double[] e = new double[vectorLength];
-		int num = 0;
+        }
 
-		for (Boid otherBoid : boids) {
+        return Vector.Create(e);
 
-			if (!boid.equals(otherBoid)) {
+    }
 
-				if (Math.abs(boid.getPosition().subtract(otherBoid.getPosition()).length2()) < lengthAwayGroup2) {
+    /**
+     * Cohesion.
+     * <p>
+     * Will cause the boids to want to steer towards the center of mass of the local group.
+     *
+     * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
+     * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by cohesion function.
+     */
+    private Vecd cohesion(Boid boid) {
 
-					for (int i = 0; i < vectorLength; i++) {
-						e[i] += otherBoid.getPosition().get(i);
-					}
+        double[] e = new double[vectorLength];
+        int num = 0;
 
-					num++;
+        for (Boid otherBoid : boids) {
 
-				}
+            if (!boid.equals(otherBoid)) {
 
-			}
+                // see if the boid can see the other boid.
+                // is if the dot product between the velocity vector and the vector from
+                // the boid to the other boid is less than the FoV
+                Vecd vectorToOtherBoid = otherBoid.getPosition().subtract(boid.getPosition());
+                if (vectorToOtherBoid.dot(boid.getVelocity()) < boid.getFov()) {
 
-		}
+                    if (Math.abs(vectorToOtherBoid.length2()) < lengthAwayGroup2) {
 
-		if (num == 0) return ZERO;
+                        for (int i = 0; i < vectorLength; i++) {
+                            e[i] += otherBoid.getPosition().get(i);
+                        }
 
-		for (int i = 0; i < vectorLength; i++) {
-			// new velocity = average position of group - boids current position all multiplied by a scale
-			e[i] = ((e[i] / num) - boid.getPosition().get(i)) * perceivedCenterScale;
-		}
+                        num++;
 
-		return Vector.Create(e);
+                    }
 
-	}
+                }
 
-	public List<Boid> getBoids() {
-		return boids;
-	}
+            }
 
-	public void setGoal(Goal goal) {
+        }
 
-		this.goal = goal;
+        if (num == 0) return ZERO;
 
-	}
+        for (int i = 0; i < vectorLength; i++) {
+            // new velocity = average position of group - boids current position all multiplied by a scale
+            e[i] = ((e[i] / num) - boid.getPosition().get(i)) * perceivedCenterScale;
+        }
 
-	public Goal getGoal() {
-		return goal;
-	}
+        return Vector.Create(e);
+
+    }
+
+    public List<Boid> getBoids() {
+        return boids;
+    }
+
+    public void setGoal(Goal goal) {
+
+        this.goal = goal;
+
+    }
+
+    public Goal getGoal() {
+        return goal;
+    }
 }
