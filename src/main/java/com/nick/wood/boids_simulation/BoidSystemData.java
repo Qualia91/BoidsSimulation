@@ -2,7 +2,8 @@ package com.nick.wood.boids_simulation;
 
 public class BoidSystemData {
 
-	private double limitedSpeed = 5;
+	private double maxSpeed = 5;
+	private double minSpeed = 0;
 	private double lengthAwayGroup2 = 400;
 	private double lengthAwayMin2 = 25;
 	private double boundScale = 1000;
@@ -16,12 +17,20 @@ public class BoidSystemData {
 
 	}
 
-	public double getLimitedSpeed() {
-		return limitedSpeed;
+	public double getMinSpeed() {
+		return minSpeed;
 	}
 
-	public void setLimitedSpeed(double limitedSpeed) {
-		this.limitedSpeed = limitedSpeed;
+	public void setMinSpeed(double minSpeed) {
+		this.minSpeed = minSpeed;
+	}
+
+	public double getMaxSpeed() {
+		return maxSpeed;
+	}
+
+	public void setMaxSpeed(double maxSpeed) {
+		this.maxSpeed = maxSpeed;
 	}
 
 	public double getLengthAwayGroup2() {

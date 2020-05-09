@@ -16,7 +16,8 @@ public class BoidSystem {
 	private final int mins[];
 	private final int maxs[];
 
-	private final double limitedSpeed;
+	private final double maxSpeed;
+	private final double minSpeed;
 	private final double lengthAwayGroup2;
 	private final double lengthAwayMin2;
 	private final double boundScale;
@@ -39,7 +40,8 @@ public class BoidSystem {
 
 		this.vectorLength = maxs.length;
 
-		this.limitedSpeed = boidSystemData.getLimitedSpeed();
+		this.maxSpeed = boidSystemData.getMaxSpeed();
+		this.minSpeed = boidSystemData.getMinSpeed();
 		this.lengthAwayGroup2 = boidSystemData.getLengthAwayGroup2();
 		this.lengthAwayMin2 = boidSystemData.getLengthAwayMin2();
 		this.boundScale = boidSystemData.getBoundScale();
@@ -62,7 +64,7 @@ public class BoidSystem {
 
 			boids.add(new Boid(
 					Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(maxs[index] - mins[index]) + mins[index])),
-					Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt(10) - 5)),
+					Vector.Create(getVector(mins.length, (index) -> (double) rand.nextInt((int) (maxSpeed + minSpeed)) - minSpeed)),
 					goal,
 					Math.PI/8));
 		}
@@ -84,7 +86,7 @@ public class BoidSystem {
 		for (Boid boid : boids) {
 
 			boid.setVelocity(
-					limitVelocity(
+					boundVelocity(
 							boid.getVelocity()
 									.add(cohesion(boid))
 									.add(separation(boid))
@@ -128,11 +130,19 @@ public class BoidSystem {
 		return ZERO;
 	}
 
+	/**
+	 * Bounding function.
+	 *
+	 * Stops the boids flying outside the "game area".
+	 *
+	 * @param boid {@link com.nick.wood.boids_simulation.Boid} which impulse is being calculated.
+	 * @return {@link com.nick.wood.maths.objects.vector.Vecd} Impulse calculated by bound function.
+	 */
 	private Vecd bound(Boid boid) {
 
-		double[] elems = new double[mins.length];
+		double[] elems = new double[vectorLength];
 
-		for (int i = 0; i < mins.length; i++) {
+		for (int i = 0; i < vectorLength; i++) {
 			if (boid.getPosition().get(i) < mins[i]) {
 				elems[i] = (mins[i] - boid.getPosition().get(i)) * boundScale;
 			}
@@ -144,12 +154,16 @@ public class BoidSystem {
 		return Vector.Create(elems);
 	}
 
-	private Vecd limitVelocity(Vecd vel) {
+	private Vecd boundVelocity(Vecd vel) {
 
-		if (vel.length() > limitedSpeed) {
+		double speed = vel.length();
 
-			vel = vel.normalise().scale(limitedSpeed);
+		if (speed < minSpeed) {
+			vel = vel.normalise().scale(minSpeed);
+		}
 
+		else if (speed > maxSpeed) {
+			vel = vel.normalise().scale(maxSpeed);
 		}
 
 		return vel;
