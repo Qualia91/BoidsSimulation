@@ -10,14 +10,16 @@ public class Boid {
 	private Vecd position;
 	private Vecd velocity;
 	private Goal goal;
-	private double fov;
+	private double fovAngle;
+	private double fovRange;
 
-	public Boid(Vecd position, Vecd velocity, Goal goal, double fov) {
+	public Boid(Vecd position, Vecd velocity, Goal goal, double fovAngle, double fovRange) {
 		this.uuid = UUID.randomUUID();
 		this.position = position;
 		this.velocity = velocity;
 		this.goal = goal;
-		this.fov = fov;
+		this.fovAngle = fovAngle;
+		this.fovRange = fovRange;
 	}
 
 	public UUID getUuid() {
@@ -48,11 +50,19 @@ public class Boid {
 		this.goal = goal;
 	}
 
-	public double getFov() {
-		return fov;
+	public double getFovAngle() {
+		return fovAngle;
 	}
 
-	public void setFov(double fov) {
-		this.fov = fov;
+	public void setFovAngle(double fovAngle) {
+		this.fovAngle = fovAngle;
+	}
+
+	public double getFovRange() {
+		return fovRange;
+	}
+
+	public void setFovRange(double fovRange) {
+		this.fovRange = fovRange;
 	}
 }

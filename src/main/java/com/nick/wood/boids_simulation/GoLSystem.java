@@ -110,7 +110,7 @@ public class GoLSystem {
 		return new Boid(center,
 				Vector.Create(rand.nextInt(10) - 5, rand.nextInt(10) - 5),
 				new Goal(Vector.Create(0.0, 0.0), -1, false),
-				Math.PI/8);
+				Math.PI/8, 10f);
 
 	}
 }

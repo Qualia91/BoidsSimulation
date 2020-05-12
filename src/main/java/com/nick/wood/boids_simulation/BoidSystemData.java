@@ -2,16 +2,16 @@ package com.nick.wood.boids_simulation;
 
 public class BoidSystemData {
 
-	private double maxSpeed = 5;
-	private double minSpeed = 0;
-	private double lengthAwayGroup2 = 400;
-	private double lengthAwayMin2 = 25;
-	private double boundScale = 1000;
-	private double velocityMatchScale = 10;
-	private double antiCollideScale = 10;
-	private double perceivedCenterScale = 10;
-	private double goalScale = 5;
-	private int numberOfBoids = 10;
+	private double maxSpeed = 10;
+	private double minSpeed = 5;
+	private double lengthAwayGroup2 = 800;
+	private double lengthAwayMin2 = 200;
+	private double boundScale = 10;
+	private double velocityMatchScale = 0.5;
+	private double antiCollideScale = 0.5;
+	private double perceivedCenterScale = 0.5;
+	private double goalScale = 0.5;
+	private int numberOfBoids = 100;
 
 	public BoidSystemData() {
 

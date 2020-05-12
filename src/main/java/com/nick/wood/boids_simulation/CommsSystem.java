@@ -25,7 +25,7 @@ public class CommsSystem {
 
 						Vecd vecBetweenTwoPoints = otherBoid.getPosition().subtract(boid.getPosition());
 
-						if (vecBetweenTwoPoints.dot(boid.getVelocity()) * ((vecBetweenTwoPoints.length()) * (boid.getVelocity().length())) < boid.getFov()) {
+						if (vecBetweenTwoPoints.dot(boid.getVelocity()) * ((vecBetweenTwoPoints.length()) * (boid.getVelocity().length())) < boid.getFovAngle()) {
 
 							otherBoid.setGoal(boid.getGoal());
 
